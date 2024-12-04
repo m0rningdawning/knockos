@@ -1,8 +1,18 @@
-ORG 0x7c00 ; start from bootloader space
+ORG 0 ; start from the beginning of the address space
 BITS 16 ; real mode 16 bits
 
+jmp 0x7c0: start
+
 start:
-    mov si, message 
+    cli ; clear ints then set registers so that the boot loader origin is set correctly
+    mov ax, 0x7c0
+    mov ds, ax
+    mov es, ax
+    mov ax, 0x00 ; clear stack segment then set the stack pointer to bootloader space
+    mov ss, ax
+    mov sp, 0x7c00
+    sti ; set ints
+    mov si, message
     call print
     jmp $ ; so that we don't reach the boot signature
 
