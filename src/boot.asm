@@ -7,6 +7,17 @@ _start:
     jmp short start
     nop
 
+; prints 0
+; by default int 0 is "divide by zero exception". Because of
+; that, this int will be called when division by zero occures,
+; even though the said interrupt is now custom
+int_zero:
+    mov ah, 0eh
+    mov al, '0'
+    mov bx, 0x00
+    int 0x10
+    iret
+
 times 33 db 0 ; fake bios parameter block 33 bits
 
 start:
@@ -19,15 +30,23 @@ continue_start:
     mov ax, 0x7c0
     mov ds, ax
     mov es, ax
-    ; clear stack segment then set the stack 
+    ; clear stack segment then set the stack
     ; pointer to bootloader space
-    mov ax, 0x00 
+    mov ax, 0x00
     mov ss, ax
     mov sp, 0x7c00
     sti ; set ints
-    mov si, message
+
+    ; make custom int 0 and call it 4 fun
+    mov word[ss:0x00], int_zero
+    mov word[ss:0x02], 0x7c0
+    int 0
+
+    mov si, done_message
     call print
     jmp $ ; so that we don't reach the boot signature
+
+done_message: db 'Booting finished.', 0
 
 print:
     mov bx, 0 ; page num
@@ -46,8 +65,6 @@ teletype_out:
     ; mov bl, E
     int 0x10
     ret
-
-message: db 'Hello World!', 0
 
 times 510 - ($ - $$) db 0 ; fill the rest of the bytes with 0
 dw 0xAA55 ; signature
