@@ -1,5 +1,8 @@
-ORG 0 ; start from the beginning of the address space
+ORG 0x7c00 ; start from the beginning of the address space
 BITS 16 ; real mode 16 bits
+
+CODE_SEG equ gdt_code - gdt_start
+DATA_SEG equ gdt_data - gdt_start
 
 ; start from jmp short to actual start routine to free up
 ; space to fake the bpb for hardware bios differences
@@ -21,77 +24,73 @@ int_zero:
 times 33 db 0 ; fake bios parameter block 33 bits
 
 start:
-    jmp 0x7c0: continue_start ; continue the start procedure
+    jmp 0: continue_start ; continue the start procedure
 
 continue_start:
     ; clear ints then set registers so that the boot
     ; loader origin is set correctly
     cli
-    mov ax, 0x7c0
+    mov ax, 0x00
     mov ds, ax
     mov es, ax
     ; clear stack segment then set the stack
     ; pointer to bootloader space
-    mov ax, 0x00
     mov ss, ax
     mov sp, 0x7c00
     sti ; set ints
 
-    ; int 13/ah=02h sector(s) -> memory
-    mov ah, 02h ; read sector command
-    mov al, 1 ; one sector to read
-    mov ch, 0 ; low 8 bits of cylinder number
-    mov cl, 2 ; sector 2
-    mov dh, 0 ; head 0
-    mov bx, buffer ; empty buffer to bx
-    int 0x13 ; call int x13
-    jc error ; if carry flag set jump to error
-    mov si, buffer ; print the read sector
-    call print
+.load_protected:
+    cli
+    lgdt[gdt_descriptor]
+    mov eax, cr0
+    or eax, 0x10
+    mov cr0, eax
+    jmp CODE_SEG:load32
 
-    mov si, done_message
-    call print
+; Global Descriptor Table
+gdt_start:
 
-    jmp $ ; so that we don't reach the boot signature
+gtd_null:
+    ; nullify first 64 bits
+    dd 0x00
+    dd 0x00
 
-done_message: db 'Booting finished.', 0
-error_load_sector: db 'Failed to load sector!'
+; CS, offset 0x8, default values
+gdt_code:
+    dw 0xffff ; First 0-15 bits segment limit
+    dw 0 ; Base first 0-15 bits
+    db 0 ; Base 16-23 bits
+    db 0x9a ; Access byte
+    db 11001111b ; High and low 4 bit flags
+    db 0 ; 24-31 bits
 
-error:
-    mov si, error_load_sector
-    call print
+; DS, SS, ES, FS, GS, offset 0x10, default values
+gdt_data:
+    dw 0xffff ; First 0-15 bits segment limit
+    dw 0 ; Base first 0-15 bits
+    db 0 ; Base 16-23 bits
+    db 0x92 ; Access byte
+    db 11001111b ; High and low 4 bit flags
+    db 0 ; 24-31 bits
+
+gdt_end:
+
+gdt_descriptor:
+    dw gdt_end - gdt_start - 1
+    dd gdt_start
+
+[BITS 32]
+load32:
+    mov ax, DATA_SEG
+    mov ds, ax
+    mov es, ax
+    mov fs, ax
+    mov gs, ax
+    mov ss, ax
+    mov ebp, 0x00200000
+    mov esp, ebp
     jmp $
-
-print:
-    mov bx, 0 ; page num
-.loop:
-    lodsb ; load byte address(message) to al
-    cmp al, 0 ; char to al then while not 0 teletype_out
-    je .done
-    call teletype_out
-    cmp al, 0x0A ; check if the character is a newline
-    jne .loop
-    call newline ; handle newline
-    jmp .loop
-.done:
-    ret
-
-newline:
-    mov ah, 0eh
-    mov al, 0x0D ; carriage return \r
-    int 0x10
-    mov al, 0x0A ; line feed \n
-    int 0x10
-    ret
-
-; teletype output interrupt 10 exec routine
-teletype_out:
-    mov ah, 0eh
-    ; mov bl, E
-    int 0x10
-    ret
 
 times 510 - ($ - $$) db 0 ; fill the rest of the bytes with 0
 dw 0xAA55 ; signature
 
-buffer: ; empty buffer for int 13
