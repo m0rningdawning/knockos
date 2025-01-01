@@ -10,17 +10,6 @@ _start:
     jmp short start
     nop
 
-; prints 0
-; by default int 0 is "divide by zero exception". Because of
-; that, this int will be called when division by zero occures,
-; even though the said interrupt is now custom
-int_zero:
-    mov ah, 0eh
-    mov al, '0'
-    mov bx, 0x00
-    int 0x10
-    iret
-
 times 33 db 0 ; fake bios parameter block 33 bits
 
 start:
@@ -43,7 +32,7 @@ continue_start:
     cli
     lgdt[gdt_descriptor]
     mov eax, cr0
-    or eax, 0x10
+    or eax, 0x1
     mov cr0, eax
     jmp CODE_SEG:load32
 
@@ -52,8 +41,8 @@ gdt_start:
 
 gtd_null:
     ; nullify first 64 bits
-    dd 0x00
-    dd 0x00
+    dd 0x0
+    dd 0x0
 
 ; CS, offset 0x8, default values
 gdt_code:
