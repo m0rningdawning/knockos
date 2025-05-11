@@ -1,12 +1,21 @@
-SRC_DIR = ./src
-BIN_DIR = ./bin
-BOOT_SRC = $(SRC_DIR)/boot/boot.asm
-BOOT_BIN = $(BIN_DIR)/boot.bin
+BOOT_SRC = ./src/boot/boot.asm
+KERNEL_SRC = ./src/kernel.asm
+
+BOOT_BIN = ./bin/boot.bin
+KERNEL_O = ./build/kernel.asm.o
+
+OS_BIN = ./bin/os.bin
+
+all: $(BOOT_BIN) $(KERNEL_O)
+	rm -rf $(OS_BIN)
+	dd if=$(BOOT_BIN) >> ./bin/os.bin
 
 $(BOOT_BIN): $(BOOT_SRC)
 	nasm -f bin $(BOOT_SRC) -o $(BOOT_BIN)
 
-clean:
-	rm -f $(BOOT_BIN)
+$(KERNEL_O): $(KERNEL_SRC)
+	nasm -f elf -g $(KERNEL_SRC) -o $(KERNEL_O) 
 
-.PHONY: clean
+clean:
+	rm -rf $(BOOT_BIN)
+

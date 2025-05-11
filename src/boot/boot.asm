@@ -34,7 +34,9 @@ continue_start:
     mov eax, cr0
     or eax, 0x1
     mov cr0, eax
-    jmp CODE_SEG:load32
+    ; jmp CODE_SEG:load32
+    jmp $
+
 
 ; Global Descriptor Table
 gdt_start:
@@ -67,24 +69,6 @@ gdt_end:
 gdt_descriptor:
     dw gdt_end - gdt_start - 1
     dd gdt_start
-
-[BITS 32]
-load32:
-    mov ax, DATA_SEG
-    mov ds, ax
-    mov es, ax
-    mov fs, ax
-    mov gs, ax
-    mov ss, ax
-    mov ebp, 0x00200000
-    mov esp, ebp
-
-    ; Fast A20 line
-    in al, 0x92
-    or al, 2
-    out 0x92, al
-
-    jmp $
 
 times 510 - ($ - $$) db 0 ; fill the rest of the bytes with 0
 dw 0xAA55 ; signature
