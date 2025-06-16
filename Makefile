@@ -13,7 +13,9 @@ FILES = $(KERNEL_O)
 
 all: $(BOOT_BIN) $(KERNEL_BIN)
 	rm -rf $(OS_BIN)
-	dd if=$(BOOT_BIN) >> ./bin/os.bin
+	dd if=$(BOOT_BIN) >> $(OS_BIN)
+	dd if=$(KERNEL_BIN) >> $(OS_BIN)
+	dd if=/dev/zero bs=512 count=100 >> $(OS_BIN) 
 
 $(KERNEL_BIN): $(FILES)
 	i686-elf-ld -g -relocatable $(FILES) -o $(KERNEL_FULL_O)

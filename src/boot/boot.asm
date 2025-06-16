@@ -34,8 +34,7 @@ continue_start:
     mov eax, cr0
     or eax, 0x1
     mov cr0, eax
-    ; jmp CODE_SEG:load32
-    jmp $
+    jmp CODE_SEG:load32
 
 
 ; Global Descriptor Table
@@ -69,6 +68,63 @@ gdt_end:
 gdt_descriptor:
     dw gdt_end - gdt_start - 1
     dd gdt_start
+
+[BITS 32]
+load32:
+    mov eax, 1
+    mov ecx, 100
+    mov edi, 0x0100000
+    call ata_lba_read
+
+ata_lba_read:
+    mov ebx, eax, ; Backup the LBA
+
+    ; Send the highest 8 bits of the lba to hard disk controller
+    shr eax, 24
+    mov dx, 0x01F6
+    out dx, al
+    ; Finished sending
+
+    ; Send the total sectors to read
+    mov eax, ecx
+    mov ds, 0x1F2
+    out dx, align
+    ; Finished sending
+
+    ; Send more bits of the lba
+    mov eax, ebx ; Restore the lba
+    mov dx, 0x1F3
+    out dx, al 
+    ; Finished sending
+
+    ; Send more bits of the lba
+    mov dx, 0x1F4
+    mov eax, ebx ; Restore the lba
+    shr eax, 8
+    out dx, align
+    ; Finished sending
+
+    ; Send upper 16 bits of the lba
+    mov dx, 0x1F5
+    mov eax, ebx ; Restore the lba
+    shr eax, 16
+    out dx, al
+    ; Finished sending upper 16 bits of the LBA
+
+    mov dx, 0x1F7
+    mov al, 0x20
+    out dx, al
+
+; Read all sectors into memory
+.next_sector:
+    push ecx
+
+; Checking if we need to read
+.try_again:
+    mov dx, 0x1F7
+    in al, dx
+    test al, 8
+    jz .try_again
 
 times 510 - ($ - $$) db 0 ; fill the rest of the bytes with 0
 dw 0xAA55 ; signature
