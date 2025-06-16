@@ -75,20 +75,22 @@ load32:
     mov ecx, 100
     mov edi, 0x0100000
     call ata_lba_read
+    jmp CODE_SEG:0x0100000
 
 ata_lba_read:
     mov ebx, eax, ; Backup the LBA
 
     ; Send the highest 8 bits of the lba to hard disk controller
     shr eax, 24
-    mov dx, 0x01F6
+    or eax, 0xE0 ; Master drive selection
+    mov dx, 0x1F6
     out dx, al
     ; Finished sending
 
     ; Send the total sectors to read
     mov eax, ecx
-    mov ds, 0x1F2
-    out dx, align
+    mov dx, 0x1F2
+    out dx, al
     ; Finished sending
 
     ; Send more bits of the lba
@@ -101,7 +103,7 @@ ata_lba_read:
     mov dx, 0x1F4
     mov eax, ebx ; Restore the lba
     shr eax, 8
-    out dx, align
+    out dx, al
     ; Finished sending
 
     ; Send upper 16 bits of the lba
@@ -125,6 +127,15 @@ ata_lba_read:
     in al, dx
     test al, 8
     jz .try_again
+
+    ; We need to read 256 at a time
+    mov ecx, 256
+    mov dx, 0x1F0
+    rep insw
+    pop ecx
+    loop .next_sector
+    ; End of reading sectors
+    ret
 
 times 510 - ($ - $$) db 0 ; fill the rest of the bytes with 0
 dw 0xAA55 ; signature
