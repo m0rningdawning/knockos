@@ -1,5 +1,8 @@
 [BITS 32]
 
+; assmebly section first (from ld)
+; section .asm
+
 CODE_SEG equ 0x08
 DATA_SEG equ 0x10
 global _start
@@ -21,3 +24,4 @@ _start:
 
     jmp $
 
+times 512 - ($ - $$) db 0 ; 512 empty bytes to fix potential allignment issues 
