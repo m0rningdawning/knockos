@@ -29,4 +29,8 @@ $(KERNEL_O): $(KERNEL_SRC)
 
 clean:
 	rm -rf $(BOOT_BIN)
+	rm -rf $(KERNEL_BIN)
+	rm -rf $(OS_BIN)
+	rm -rf $(KERNEL_FULL_O)
+	rm -rf $(FILES)
 
