@@ -1,34 +1,38 @@
 #include "../include/kernel.h"
 
-void clear_screen(unsigned short color, const unsigned short w,
-                  const unsigned short h) {
-  volatile unsigned short *video = (unsigned short *)0xB8000;
+uint16_t make_char(const char c, const uint8_t color) {
+  return (color << 8) | (uint8_t)c;
+}
 
-  for (int i = 0; i < w * h; i++) {
-    *video++ = ' ';
-    *video++ = color;
+void clear_screen(const uint8_t color) {
+  volatile uint16_t *video = (volatile uint16_t *)0xB8000;
+
+  for (int i = 0; i < VGA_HEIGHT * VGA_WIDTH; i++) {
+    *video++ = make_char(' ', color);
   }
 }
 
-void write_string(const char *string, const unsigned short color,
-                  const unsigned short pos_x, const unsigned short pos_y) {
-  volatile char *video = (volatile char *)0xB8000 + 320 * pos_y + pos_x;
+void write_chars(const char *string, const uint8_t color, const uint8_t pos_x,
+                 const uint8_t pos_y) {
+  volatile uint16_t *video =
+      (volatile uint16_t *)0xB8000 + VGA_WIDTH * pos_y + pos_x;
 
   while (*string) {
-    *video++ = *string++;
-    *video++ = color;
+    if (*string == '\n') {
+      video += VGA_WIDTH - ((video - (volatile uint16_t *)0xB8000) % VGA_WIDTH);
+      (void)*string++;
+    }
+    *video++ = make_char(*string++, color);
   }
 }
 
 void kernel_main() {
-  const short text_clr = 2;  // green color
-  const short crear_clr = 0; // default black clear color
-  const short pos_x = 70;    // (default == 140) / 2 = 70
-  const short pos_y = 6;     // (default == 12) / 2 = 6
-  const short w = 140;
-  const short h = 12;
+  uint8_t pos_x = 0;     // (default == 80)
+  uint8_t pos_y = 0;     // (default == 20)
+  uint8_t text_clr = 2;  // green color
+  uint8_t crear_clr = 0; // default black clear color
 
-  clear_screen(crear_clr, w, h);
-  write_string("Hello World!", text_clr, pos_x, pos_y);
+  clear_screen(crear_clr);
+  write_chars("Hello\nWorld!", text_clr, pos_x, pos_y);
 }
 
