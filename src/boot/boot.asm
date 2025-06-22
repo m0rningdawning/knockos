@@ -96,7 +96,7 @@ ata_lba_read:
     ; Send more bits of the lba
     mov eax, ebx ; Restore the lba
     mov dx, 0x1F3
-    out dx, al 
+    out dx, al
     ; Finished sending
 
     ; Send more bits of the lba
