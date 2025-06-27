@@ -12,6 +12,7 @@ struct idt_desc {
   uint16_t offset_2;
 } __attribute__((packed));
 
+// IDT Register
 struct idtr_desc {
   uint16_t limit;
   uint32_t base;
