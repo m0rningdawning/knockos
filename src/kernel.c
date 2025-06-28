@@ -1,9 +1,12 @@
 #include "../include/kernel.h"
 #include "../include/idt.h"
+#include "../include/io.h"
+
 #include <stdarg.h>
 
 static uint16_t cursor_row = 0;
 static uint16_t cursor_col = 0;
+static uint8_t default_clr = 2;
 
 size_t strlen(const char *str) {
   size_t len = 0;
@@ -44,7 +47,7 @@ void write_chars(const char *string, const uint8_t color, const uint8_t pos_x,
 }
 
 void putchar(char c) {
-    write_chars(&c, 1, cursor_col, cursor_row);
+    write_chars(&c, default_clr, cursor_col, cursor_row);
     cursor_col++;
     if (c == '\n') {
         cursor_row++;
@@ -89,8 +92,6 @@ void printf(const char* fmt, ...) {
     va_end(args);
 }
 
-extern void _error();
-
 void kernel_main() {
   // uint8_t pos_x = VGA_WIDTH / 2 - 6; // (pos_x <= 80 - strlen)
   // uint8_t pos_y = VGA_HEIGHT / 2;    // (pos_y <= 20)
@@ -102,6 +103,7 @@ void kernel_main() {
   printf("Sup!");
 
   idt_init();
-  // _error();
+
+  outb(0x60, 0xff);
 }
 

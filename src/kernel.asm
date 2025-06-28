@@ -7,7 +7,6 @@ CODE_SEG equ 0x08
 DATA_SEG equ 0x10
 
 global _start
-global _error
 extern kernel_main
 
 _start:
@@ -27,9 +26,5 @@ _start:
 
     call kernel_main
     jmp $
-
-_error:
-  mov eax, 0
-  div eax
 
 times 512 - ($ - $$) db 0 ; 512 empty bytes to fix potential allignment issues 
