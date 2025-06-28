@@ -13,5 +13,6 @@ uint16_t make_char(const char c, const uint8_t color);
 void clear_screen(const uint8_t color);
 void write_chars(const char *string, const uint8_t color, const uint8_t pos_x,
                  const uint8_t pos_y);
+void printf(const char* fmt, ...);
 
 #endif /* ifndef KERNEL_H */
