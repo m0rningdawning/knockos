@@ -1,3 +1,4 @@
+# Files to assemble
 BOOT_SRC = ./src/boot/boot.asm
 KERNEL_ASM_SRC = ./src/kernel.asm
 
@@ -10,13 +11,23 @@ KERNEL_O = ./build/kernel.o
 
 KERNEL_FULL_O = ./build/kernelfull.o
 
+IDT_ASM_SRC = ./src/idt/idt.asm
+IDT_ASM_O = ./build/idt/idt.asm.o
+
+IDT_SRC = ./src/idt/idt.c
+IDT_O = ./build/idt/idt.o
+
+MEMORY_SRC = ./src/memory/memory.c
+MEMORY_O = ./build/memory/memory.o
+
 OS_BIN = ./bin/os.bin
 
-FILES = $(KERNEL_ASM_O) $(KERNEL_O)
+FILES = $(KERNEL_ASM_O) $(KERNEL_O) $(IDT_ASM_O) $(IDT_O) $(MEMORY_O)
 
 INCLUDES = -I./include
 FLAGS = -g -ffreestanding -falign-jumps -falign-loops -falign-functions -falign-labels -fstrength-reduce -fomit-frame-pointer -finline-functions -Wno-unused-functions -fno-builtin -Werror -Wno-unused-label -Wno-cpp -Wno-unused-parameter -nostdlib -nostartfiles -nodefaultlibs -Wall -O0 -Iinc
 
+# Build scripts
 all: $(BOOT_BIN) $(KERNEL_BIN)
 	rm -rf $(OS_BIN)
 	dd if=$(BOOT_BIN) >> $(OS_BIN)
@@ -35,6 +46,15 @@ $(KERNEL_ASM_O): $(KERNEL_ASM_SRC)
 
 $(KERNEL_O): $(KERNEL_SRC)
 	i686-elf-gcc $(INCLUDES) $(FLAGS) -std=gnu99 -c $(KERNEL_SRC) -o $(KERNEL_O)
+
+$(IDT_ASM_O): $(IDT_ASM_SRC)
+	nasm -f elf -g $(IDT_ASM_SRC) -o $(IDT_ASM_O)
+
+$(IDT_O): $(IDT_SRC)
+	i686-elf-gcc $(INCLUDES) $(FLAGS) -std=gnu99 -c $(IDT_SRC) -o $(IDT_O)
+
+$(MEMORY_O): $(MEMORY_SRC)
+	i686-elf-gcc $(INCLUDES) $(FLAGS) -std=gnu99 -c $(MEMORY_SRC) -o $(MEMORY_O)
 
 clean:
 	rm -rf $(BOOT_BIN)

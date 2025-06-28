@@ -2,5 +2,7 @@
 #define CONFIG_H
 
 #define KNOCKOS_TOTAL_INTS 512
+#define KERNEL_CODE_SELECTOR 0x08
+#define KERNEL_DATA_SELECTOR 0x10
 
 #endif // CONFIG_H
