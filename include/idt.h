@@ -19,9 +19,9 @@ struct idtr_desc {
 } __attribute__((packed));
 
 void idt_zero();
-
 void idt_set(int int_no, void *address);
-
 void idt_init();
+void enable_int();
+void disable_int();
 
 #endif /* ifndef IDT_H */

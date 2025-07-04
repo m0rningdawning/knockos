@@ -35,8 +35,7 @@ _start:
     out 0x21, al
     ; End remap master PIC
 
-
     call kernel_main
     jmp $
 
-times 512 - ($ - $$) db 0 ; 512 empty bytes to fix potential allignment issues 
+times 512 - ($ - $$) db 0 ; 512 empty bytes to fix potential allignment issues

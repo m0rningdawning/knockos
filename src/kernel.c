@@ -47,63 +47,67 @@ void write_chars(const char *string, const uint8_t color, const uint8_t pos_x,
 }
 
 void putchar(char c) {
-    write_chars(&c, default_clr, cursor_col, cursor_row);
-    cursor_col++;
     if (c == '\n') {
         cursor_row++;
         cursor_col = 0;
+    } else {
+        char str[2] = {c, '\0'};
+        write_chars(str, default_clr, cursor_col, cursor_row);
+        cursor_col++;
     }
 }
 
 void print_int(int value) {
-    char buf[12];
-    int i = 0, is_negative = 0;
-    if (value < 0) {
-        is_negative = 1;
-        value = -value;
-    }
-    do {
-        buf[i++] = '0' + (value % 10);
-        value /= 10;
-    } while (value);
-    if (is_negative) buf[i++] = '-';
-    while (i--) putchar(buf[i]);
+  char buf[12];
+  int i = 0, is_negative = 0;
+  if (value < 0) {
+    is_negative = 1;
+    value = -value;
+  }
+  do {
+    buf[i++] = '0' + (value % 10);
+    value /= 10;
+  } while (value);
+  if (is_negative)
+    buf[i++] = '-';
+  while (i--)
+    putchar(buf[i]);
 }
 
-void printf(const char* fmt, ...) {
-    va_list args;
-    va_start(args, fmt);
-    for (const char* p = fmt; *p; p++) {
-        if (*p == '%') {
-            p++;
-            if (*p == 's') {
-                char* s = va_arg(args, char*);
-                while (*s) putchar(*s++);
-            } else if (*p == 'd') {
-                int d = va_arg(args, int);
-                print_int(d);
-            } else if (*p == '%') {
-                putchar('%');
-            }
-        } else {
-            putchar(*p);
-        }
+void printf(const char *fmt, ...) {
+  va_list args;
+  va_start(args, fmt);
+  for (const char *p = fmt; *p; p++) {
+    if (*p == '%') {
+      p++;
+      if (*p == 's') {
+        char *s = va_arg(args, char *);
+        while (*s)
+          putchar(*s++);
+      } else if (*p == 'd') {
+        int d = va_arg(args, int);
+        print_int(d);
+      } else if (*p == '%') {
+        putchar('%');
+      }
+    } else {
+      putchar(*p);
     }
-    va_end(args);
+  }
+  va_end(args);
 }
 
 void kernel_main() {
   // uint8_t pos_x = VGA_WIDTH / 2 - 6; // (pos_x <= 80 - strlen)
   // uint8_t pos_y = VGA_HEIGHT / 2;    // (pos_y <= 20)
   // uint8_t text_clr = 2;              // green color
-  uint8_t crear_clr = 0;             // default black clear color
+  uint8_t clear_clr = 0; // default black clear color
 
-  clear_screen(crear_clr);
+  clear_screen(clear_clr);
   // write_chars("Hello World!", text_clr, 0,0);
-  printf("Sup!");
+  printf("Sup!\n");
 
   idt_init();
 
-  outb(0x60, 0xff);
+  enable_int();
 }
-
