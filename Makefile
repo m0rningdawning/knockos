@@ -17,6 +17,9 @@ IDT_O = ./build/idt/idt.o
 MEMORY_SRC = ./src/memory/memory.c
 MEMORY_O = ./build/memory/memory.o
 
+MEMORY_SRC = ./src/heap/heap.c
+MEMORY_O = ./build/heap/heap.o
+
 IO_ASM_SRC = ./src/io/io.asm
 IO_ASM_O = ./build/io/io.asm.o
 
@@ -24,7 +27,7 @@ OS_BIN = ./bin/os.bin
 ###
 
 # File paths, include paths and compilation flags
-FILES = $(KERNEL_ASM_O) $(KERNEL_O) $(IDT_ASM_O) $(IDT_O) $(MEMORY_O) $(IO_ASM_O)
+FILES = $(KERNEL_ASM_O) $(KERNEL_O) $(IDT_ASM_O) $(IDT_O) $(MEMORY_O) $(HEAP_O) $(IO_ASM_O)
 INCLUDES = -I./include
 FLAGS = -g -ffreestanding -falign-jumps -falign-loops -falign-functions -falign-labels -fstrength-reduce -fomit-frame-pointer -finline-functions -Wno-unused-functions -fno-builtin -Werror -Wno-unused-label -Wno-cpp -Wno-unused-parameter -nostdlib -nostartfiles -nodefaultlibs -Wall -O0 -Iinc
 ###
