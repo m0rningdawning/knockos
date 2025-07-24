@@ -23,4 +23,6 @@ struct heap {
   void* st_addr;
 };
 
+int heap_create(struct heap* heap, void* p, void* end, struct heap_table* table);
+
 #endif /* ifndef HEAP_H_ */
