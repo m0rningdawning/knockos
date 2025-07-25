@@ -43,6 +43,9 @@ bin
 *.idb
 *.pdb
 
+# Lsp cache
+.cache/
+
 # Kernel Module Compile Results
 *.mod*
 *.cmd

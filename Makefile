@@ -20,6 +20,9 @@ MEMORY_O = ./build/memory/memory.o
 HEAP_SRC = ./src/memory/heap/heap.c
 HEAP_O = ./build/memory/heap/heap.o
 
+KHEAP_SRC = ./src/memory/heap/kheap.c
+KHEAP_O = ./build/memory/heap/kheap.o
+
 IO_ASM_SRC = ./src/io/io.asm
 IO_ASM_O = ./build/io/io.asm.o
 
@@ -27,7 +30,7 @@ OS_BIN = ./bin/os.bin
 ###
 
 # File paths, include paths and compilation flags
-FILES = $(KERNEL_ASM_O) $(KERNEL_O) $(IDT_ASM_O) $(IDT_O) $(MEMORY_O) $(IO_ASM_O) $(HEAP_O)
+FILES = $(KERNEL_ASM_O) $(KERNEL_O) $(IDT_ASM_O) $(IDT_O) $(MEMORY_O) $(IO_ASM_O) $(HEAP_O) $(KHEAP_O)
 INCLUDES = -I./include
 FLAGS = -g -ffreestanding -falign-jumps -falign-loops -falign-functions -falign-labels -fstrength-reduce -fomit-frame-pointer -finline-functions -Wno-unused-functions -fno-builtin -Werror -Wno-unused-label -Wno-cpp -Wno-unused-parameter -nostdlib -nostartfiles -nodefaultlibs -Wall -O0 -Iinc
 ###
@@ -69,6 +72,9 @@ $(IO_ASM_O): $(IO_ASM_SRC)
 
 $(HEAP_O): $(HEAP_SRC)
 	i686-elf-gcc $(INCLUDES) $(FLAGS) -std=gnu99 -c $(HEAP_SRC) -o $(HEAP_O)
+
+$(KHEAP_O): $(KHEAP_SRC)
+	i686-elf-gcc $(INCLUDES) $(FLAGS) -std=gnu99 -c $(KHEAP_SRC) -o $(KHEAP_O)
 ##
 
 clean:

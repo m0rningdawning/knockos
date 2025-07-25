@@ -1,8 +1,8 @@
-#include "../../include/idt.h"
-#include "../../include/config.h"
-#include "../../include/io.h"
-#include "../../include/kernel.h"
-#include "../../include/memory.h"
+#include "idt.h"
+#include "config.h"
+#include "io.h"
+#include "kernel.h"
+#include "memory.h"
 
 struct idt_desc idt_descriptors[KNOCKOS_TOTAL_INTS];
 struct idtr_desc idtr_descriptors;

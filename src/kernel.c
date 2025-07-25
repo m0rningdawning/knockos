@@ -1,6 +1,6 @@
-#include "../include/kernel.h"
-#include "../include/idt.h"
-#include "../include/io.h"
+#include "kernel.h"
+#include "idt.h"
+#include "io.h"
 
 #include <stdarg.h>
 
