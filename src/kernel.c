@@ -1,8 +1,10 @@
 #include "kernel.h"
-#include "idt.h"
-#include "io.h"
 
 #include <stdarg.h>
+
+#include "idt.h"
+#include "io.h"
+#include "kheap.h"
 
 static uint16_t cursor_row = 0;
 static uint16_t cursor_col = 0;
@@ -47,14 +49,14 @@ void write_chars(const char *string, const uint8_t color, const uint8_t pos_x,
 }
 
 void putchar(char c) {
-    if (c == '\n') {
-        cursor_row++;
-        cursor_col = 0;
-    } else {
-        char str[2] = {c, '\0'};
-        write_chars(str, default_clr, cursor_col, cursor_row);
-        cursor_col++;
-    }
+  if (c == '\n') {
+    cursor_row++;
+    cursor_col = 0;
+  } else {
+    char str[2] = {c, '\0'};
+    write_chars(str, default_clr, cursor_col, cursor_row);
+    cursor_col++;
+  }
 }
 
 void print_int(int value) {
@@ -68,10 +70,8 @@ void print_int(int value) {
     buf[i++] = '0' + (value % 10);
     value /= 10;
   } while (value);
-  if (is_negative)
-    buf[i++] = '-';
-  while (i--)
-    putchar(buf[i]);
+  if (is_negative) buf[i++] = '-';
+  while (i--) putchar(buf[i]);
 }
 
 void printf(const char *fmt, ...) {
@@ -82,8 +82,7 @@ void printf(const char *fmt, ...) {
       p++;
       if (*p == 's') {
         char *s = va_arg(args, char *);
-        while (*s)
-          putchar(*s++);
+        while (*s) putchar(*s++);
       } else if (*p == 'd') {
         int d = va_arg(args, int);
         print_int(d);
@@ -101,13 +100,25 @@ void kernel_main() {
   // uint8_t pos_x = VGA_WIDTH / 2 - 6; // (pos_x <= 80 - strlen)
   // uint8_t pos_y = VGA_HEIGHT / 2;    // (pos_y <= 20)
   // uint8_t text_clr = 2;              // green color
-  uint8_t clear_clr = 0; // default black clear color
+  uint8_t clear_clr = 0;  // default black clear color
 
   clear_screen(clear_clr);
   // write_chars("Hello World!", text_clr, 0,0);
   printf("Sup!\n");
 
+  kheap_init();
+
   idt_init();
+
+  // kmalloc test
+  void *p = kmalloc(50);
+  void *p2 = kmalloc(5000);
+  void *p3 = kmalloc(5500);
+  kfree(p);
+  void *p4 = kmalloc(50);
+
+  if (p || p2 || p3 || p4) {
+  }
 
   enable_int();
 }

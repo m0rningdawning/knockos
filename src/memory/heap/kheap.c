@@ -12,7 +12,7 @@ void kheap_init() {
   kernel_heap_table.entries = (HEAP_B_TABLE_ENTRY*)KNOCKOS_HEAP_TABLE_ADDR;
   kernel_heap_table.total = table_entries;
 
-  void* end = (void*)(KNOCKOS_HEAP_TABLE_ADDR + KNOCKOS_HEAP_SIZE_T);
+  void* end = (void*)(KNOCKOS_HEAP_START_ADDR + KNOCKOS_HEAP_SIZE_T);
   int res = heap_create(&kernel_heap, (void*)(KNOCKOS_HEAP_START_ADDR), end,
                         &kernel_heap_table);
 
@@ -20,3 +20,7 @@ void kheap_init() {
     printf("Heap creation error!\n");
   }
 }
+
+void* kmalloc(size_t size) { return heap_malloc(&kernel_heap, size); }
+
+void kfree(void* p) { heap_free(&kernel_heap, p); }
