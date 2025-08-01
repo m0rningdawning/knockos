@@ -3,6 +3,7 @@
 #include "config.h"
 #include "heap.h"
 #include "kernel.h"
+#include "memory.h"
 
 struct heap kernel_heap;
 struct heap_table kernel_heap_table;
@@ -22,5 +23,15 @@ void kheap_init() {
 }
 
 void* kmalloc(size_t size) { return heap_malloc(&kernel_heap, size); }
+
+void* kzalloc(size_t size) {
+  void* p = kmalloc(size);
+  if (p < 0) {
+    printf("kzalloc error!\n");
+    return 0;
+  }
+  memset(p, 0x00, size);
+  return p;
+}
 
 void kfree(void* p) { heap_free(&kernel_heap, p); }

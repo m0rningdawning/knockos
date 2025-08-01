@@ -5,6 +5,7 @@
 #include "idt.h"
 #include "io.h"
 #include "kheap.h"
+#include "page.h"
 
 static uint16_t cursor_row = 0;
 static uint16_t cursor_col = 0;
@@ -96,6 +97,8 @@ void printf(const char *fmt, ...) {
   va_end(args);
 }
 
+static struct page_chunk_4gb *chunk = 0;
+
 void kernel_main() {
   // uint8_t pos_x = VGA_WIDTH / 2 - 6; // (pos_x <= 80 - strlen)
   // uint8_t pos_y = VGA_HEIGHT / 2;    // (pos_y <= 20)
@@ -110,15 +113,11 @@ void kernel_main() {
 
   idt_init();
 
-  // kmalloc test
-  void *p = kmalloc(50);
-  void *p2 = kmalloc(5000);
-  void *p3 = kmalloc(5500);
-  kfree(p);
-  void *p4 = kmalloc(50);
-
-  if (p || p2 || p3 || p4) {
-  }
+  // paging test
+  chunk = page_new_chunk_4gb(PAGING_WRITABLE_SET | PAGING_PRESENT_SET |
+                             PAGING_SUPERVISOR_SET);
+  page_switch(page_chunk_get_pd_entries(chunk));
+  enable_paging();
 
   enable_int();
 }

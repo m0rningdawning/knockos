@@ -6,6 +6,7 @@
 
 void kheap_init();
 void* kmalloc(size_t size);
+void* kzalloc(size_t size);
 void kfree(void* p);
 
 #endif /* ifndef KHEAP_H_ */
