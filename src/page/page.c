@@ -40,17 +40,36 @@ bool paging_is_alligned(void* addr) {
   return ((uint32_t)addr % PAGING_PAGE_SIZE) == 0;
 }
 
-int paging_get_idx(void* v_address, uint32_t* dir_idx_out, uint32_t* tab_idx_out) {
+int paging_get_idx(void* v_addr, uint32_t* dir_idx_out, uint32_t* tab_idx_out) {
   int res = 0;
 
-  if (!paging_is_alligned(v_address)) {
+  if (!paging_is_alligned(v_addr)) {
     res = -EINVARG;
     goto out;
   }
 
-  *dir_idx_out = ((uint32_t) v_address / (PAGING_ENTRIES_PER_TABLE * PAGING_PAGE_SIZE));
-  *tab_idx_out = ((uint32_t) v_address % (PAGING_ENTRIES_PER_TABLE * PAGING_PAGE_SIZE) / PAGING_PAGE_SIZE);
+  *dir_idx_out = ((uint32_t) v_addr / (PAGING_ENTRIES_PER_TABLE * PAGING_PAGE_SIZE));
+  *tab_idx_out = ((uint32_t) v_addr % (PAGING_ENTRIES_PER_TABLE * PAGING_PAGE_SIZE) / PAGING_PAGE_SIZE);
 
 out:
   return res;
+}
+
+int paging_set(uint32_t* dir, void* v_addr, uint32_t val) {
+  if (!paging_is_alligned(v_addr)) {
+    return -EINVARG;
+  }
+
+  uint32_t dir_idx = 0;
+  uint32_t tab_idx = 0;
+  int res = paging_get_idx(v_addr, &dir_idx, &tab_idx);
+
+  if (res < 0) {
+    return res;
+  }
+
+  uint32_t entry = dir[dir_idx];
+  uint32_t* tab = (uint32_t*)(entry & 0xfffff000);
+  tab[tab_idx] = val;
+  return val;
 }

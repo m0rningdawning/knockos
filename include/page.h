@@ -25,5 +25,6 @@ uint32_t* page_chunk_get_pd_entries(struct page_chunk_4gb* chunk);
 void enable_paging();
 bool paging_is_alligned(void* addr);
 int paging_get_idx(void* v_address, uint32_t* dir_idx_out, uint32_t* tab_idx_out);
+int paging_set(uint32_t* dir, void* v_addr, uint32_t val);
 
 #endif /* ifndef PAGE_H_ */
