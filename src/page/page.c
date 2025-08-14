@@ -1,5 +1,6 @@
 #include "page.h"
 #include "kheap.h"
+#include "status.h"
 
 static uint32_t* curr_pd_entry = 0;
 
@@ -33,4 +34,23 @@ void page_switch(uint32_t* pd_entries) {
 
 uint32_t* page_chunk_get_pd_entries(struct page_chunk_4gb* chunk) {
   return chunk->pd_entries;
+}
+
+bool paging_is_alligned(void* addr) {
+  return ((uint32_t)addr % PAGING_PAGE_SIZE) == 0;
+}
+
+int paging_get_idx(void* v_address, uint32_t* dir_idx_out, uint32_t* tab_idx_out) {
+  int res = 0;
+
+  if (!paging_is_alligned(v_address)) {
+    res = -EINVARG;
+    goto out;
+  }
+
+  *dir_idx_out = ((uint32_t) v_address / (PAGING_ENTRIES_PER_TABLE * PAGING_PAGE_SIZE));
+  *tab_idx_out = ((uint32_t) v_address % (PAGING_ENTRIES_PER_TABLE * PAGING_PAGE_SIZE) / PAGING_PAGE_SIZE);
+
+out:
+  return res;
 }
