@@ -113,10 +113,22 @@ void kernel_main() {
 
   idt_init();
 
-  // paging test
+
+
+  // paging enable and test
   chunk = page_new_chunk_4gb(PAGING_WRITABLE_SET | PAGING_PRESENT_SET |
                              PAGING_SUPERVISOR_SET);
   page_switch(page_chunk_get_pd_entries(chunk));
+
+  char* p = kzalloc(4096);
+  paging_set(page_chunk_get_pd_entries(chunk), (void *)0x1000, (uint32_t)p | PAGING_SUPERVISOR_SET | PAGING_PRESENT_SET | PAGING_WRITABLE_SET);
+
+  char* p2 = (char*) 0x1000;
+  p2[0] = 'A';
+  p2[1] = 'B';
+  p2[2] = 'C';
+  printf(p2);
+
   enable_paging();
 
   enable_int();
