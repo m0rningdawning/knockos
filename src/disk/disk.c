@@ -1,4 +1,10 @@
 #include "io.h"
+#include "disk.h"
+#include "memory.h"
+#include "config.h"
+#include "status.h"
+
+disk_s disk;
 
 int disk_read_sector(int lba, int total, void* buff) {
   outb(0x1F6, (lba >> 24) | 0xE0);
@@ -24,4 +30,20 @@ int disk_read_sector(int lba, int total, void* buff) {
   }
 
   return 0;
+}
+
+void disk_search_init() {
+  memset(&disk, 0, sizeof(disk));
+  disk.type = KNOCKOS_DISK_TYPE_REAL;
+  disk.sector_size = KNOCKOS_SECTOR_SIZE;
+}
+
+disk_s* disk_get(int index) {
+  if (index != 0) return 0;
+  return &disk;
+}
+
+int disk_read_block(disk_s *idisk, unsigned int lba, int total, void* buf) {
+  if (idisk != &disk) return -EIO;
+  return disk_read_sector(lba, total, buf);
 }

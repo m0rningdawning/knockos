@@ -108,9 +108,15 @@ void kernel_main() {
 
   clear_screen(clear_clr);
   // write_chars("Hello World!", text_clr, 0,0);
-  printf("Sup!\n");
+  printf("Knockos. v0.0.1a\n");
 
+  // heap
   kheap_init();
+
+  // disks init
+  disk_search_init();
+
+  // interrupt descriptor table
   idt_init();
 
   // paging enable
@@ -119,9 +125,6 @@ void kernel_main() {
   page_switch(page_chunk_get_pd_entries(chunk));
   enable_paging();
 
-  // disk read test
-  char buf[512];
-  disk_read_sector(0, 1, buf);
-
+  // enable program interupts
   enable_int();
 }
