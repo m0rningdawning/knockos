@@ -31,11 +31,14 @@ PAGE_ASM_SRC = ./src/page/page.asm
 PAGE_O = ./build/page/page.o
 PAGE_ASM_O = ./build/page/page.asm.o
 
+DISK_SRC = ./src/disk/disk.c
+DISK_O = ./build/disk/disk.o
+
 OS_BIN = ./bin/os.bin
 ###
 
 # File paths, include paths and compilation flags
-FILES = $(KERNEL_ASM_O) $(KERNEL_O) $(IDT_ASM_O) $(IDT_O) $(MEMORY_O) $(IO_ASM_O) $(HEAP_O) $(KHEAP_O) $(PAGE_O) $(PAGE_ASM_O)
+FILES = $(KERNEL_ASM_O) $(KERNEL_O) $(IDT_ASM_O) $(IDT_O) $(MEMORY_O) $(IO_ASM_O) $(HEAP_O) $(KHEAP_O) $(PAGE_O) $(PAGE_ASM_O) $(DISK_O)
 INCLUDES = -I./include
 FLAGS = -g -ffreestanding -falign-jumps -falign-loops -falign-functions -falign-labels -fstrength-reduce -fomit-frame-pointer -finline-functions -Wno-unused-functions -fno-builtin -Werror -Wno-unused-label -Wno-cpp -Wno-unused-parameter -nostdlib -nostartfiles -nodefaultlibs -Wall -O0 -Iinc
 ###
@@ -87,6 +90,8 @@ $(PAGE_O): $(PAGE_SRC)
 $(PAGE_ASM_O): $(PAGE_ASM_SRC)
 	nasm -f elf -g $(PAGE_ASM_SRC) -o $(PAGE_ASM_O)
 
+$(DISK_O): $(DISK_SRC)
+	i686-elf-gcc $(INCLUDES) $(FLAGS) -std=gnu99 -c $(DISK_SRC) -o $(DISK_O)
 ##
 
 clean:

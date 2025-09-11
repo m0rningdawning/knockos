@@ -6,6 +6,7 @@
 #include "io.h"
 #include "kheap.h"
 #include "page.h"
+#include "disk.h"
 
 static uint16_t cursor_row = 0;
 static uint16_t cursor_col = 0;
@@ -110,26 +111,17 @@ void kernel_main() {
   printf("Sup!\n");
 
   kheap_init();
-
   idt_init();
 
-
-
-  // paging enable and test
+  // paging enable
   chunk = page_new_chunk_4gb(PAGING_WRITABLE_SET | PAGING_PRESENT_SET |
                              PAGING_SUPERVISOR_SET);
   page_switch(page_chunk_get_pd_entries(chunk));
-
-  char* p = kzalloc(4096);
-  paging_set(page_chunk_get_pd_entries(chunk), (void *)0x1000, (uint32_t)p | PAGING_SUPERVISOR_SET | PAGING_PRESENT_SET | PAGING_WRITABLE_SET);
-
   enable_paging();
 
-  char* p2 = (char*) 0x1000;
-  p2[0] = 'A';
-  p2[1] = 'B';
-  p2[2] = 'C';
-  printf(p2);
+  // disk read test
+  char buf[512];
+  disk_read_sector(0, 1, buf);
 
   enable_int();
 }
