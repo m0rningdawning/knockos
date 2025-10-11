@@ -2,6 +2,7 @@
 
 #include <stdarg.h>
 
+#include "string.h"
 #include "idt.h"
 #include "io.h"
 #include "kheap.h"
@@ -11,14 +12,6 @@
 static uint16_t cursor_row = 0;
 static uint16_t cursor_col = 0;
 static uint8_t default_clr = 2;
-
-size_t strlen(const char *str) {
-  size_t len = 0;
-  while (str[len]) {
-    len++;
-  }
-  return len;
-}
 
 uint16_t make_char(const char c, const uint8_t color) {
   return (color << 8) | (uint8_t)c;
