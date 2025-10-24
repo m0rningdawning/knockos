@@ -7,7 +7,7 @@
 
 static int valid_path_format(const char* filename) {
   int len = strnlen(filename, KNOCKOS_MAX_PATH);
-  return (len >= 3 && isdigit(filename[0]) && memcmp((void*)&filename[1], ":/", 2) == 2);
+  return (len >= 3 && isdigit(filename[0]) && memcmp((void*)&filename[1], ":/", 2) == 0);
 }
 
 static int get_drive_by_path(const char** path) {
@@ -29,28 +29,30 @@ static struct path_root* create_path_root(int drive_number) {
   return path_r;
 }
 
-static const char* get_path_part(const char* path) {
+static const char* get_path_part(const char** path) {
   char* result_p_part = kzalloc(KNOCKOS_MAX_PATH);
   int i = 0;
-  while (*path != '/' && *path != 0x00) {
-    result_p_part[i] = *path;
-    path += 1;
+  while (**path != '/' && **path != 0x00) {
+    result_p_part[i] = **path;
+    *path += 1;
     ++i;
   }
 
-  if (*path == '/') {
+  if (**path == '/') {
     // skip the forwar slash
-    path+=1;
+    *path += 1;
   }
 
   if (i == 0) {
     kfree(result_p_part);
     result_p_part = 0;
   }
+
+  return result_p_part;
 }
 
 struct path_part* parse_path_part(struct path_part* last, const char** path) {
-  const char* path_part_str = get_path_part(*path);
+  const char* path_part_str = get_path_part(path);
   if (!path_part_str) {
     return 0;
   }
@@ -71,7 +73,7 @@ void pathparser_free(struct path_root* root) {
   struct path_part* part = root->first;
 
   while(part) {
-    struct path_part* next_part = root->first;
+    struct path_part* next_part = part->next;
     kfree((void*) part->part);
     kfree(part);
     part = next_part;
@@ -79,5 +81,25 @@ void pathparser_free(struct path_root* root) {
   kfree(root);
 }
 
-struct path_root* pathparser_path(const char* path, const char* current_directory_path) {
+struct path_root* pathparser_parse(const char* path, const char* current_directory_path) {
+  int res = 0;
+  const char* tmp_path = path;
+  struct path_root* path_root = 0;
+
+  if (strlen(path) > KNOCKOS_MAX_PATH) goto out;
+
+  res = get_drive_by_path(&tmp_path);
+  if (res < 0) goto out;
+
+  path_root = create_path_root(res);
+  if (!path_root) goto out;
+
+  struct path_part* first_part = parse_path_part(NULL, &tmp_path);
+  if(!first_part) goto out;
+
+  path_root->first = first_part;
+  struct path_part* part = parse_path_part(first_part, &tmp_path);
+  while (part) part = parse_path_part(part, &tmp_path);
+out:
+  return path_root;
 }

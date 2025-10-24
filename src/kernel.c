@@ -8,6 +8,7 @@
 #include "kheap.h"
 #include "page.h"
 #include "disk.h"
+#include "pparser.h"
 
 static uint16_t cursor_row = 0;
 static uint16_t cursor_col = 0;
@@ -120,4 +121,8 @@ void kernel_main() {
 
   // enable program interupts
   enable_int();
+
+  struct path_root* root_path = pathparser_parse("0:/bin/shell.bin", NULL);
+
+  if (root_path) {}
 }
