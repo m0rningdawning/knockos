@@ -34,6 +34,9 @@ PAGE_ASM_O = ./build/page/page.asm.o
 DISK_SRC = ./src/disk/disk.c
 DISK_O = ./build/disk/disk.o
 
+STREAMER_SRC = ./src/disk/streamer.c
+STREAMER_O = ./build/disk/streamer.o
+
 PPARSER_SRC = ./src/fs/pparser.c
 PPARSER_O = ./build/pparser/pparser.o
 
@@ -44,7 +47,7 @@ OS_BIN = ./bin/os.bin
 ###
 
 # File paths, include paths and compilation flags
-FILES = $(KERNEL_ASM_O) $(KERNEL_O) $(IDT_ASM_O) $(IDT_O) $(MEMORY_O) $(IO_ASM_O) $(HEAP_O) $(KHEAP_O) $(PAGE_O) $(PAGE_ASM_O) $(DISK_O) $(PPARSER_O) $(STRING_O)
+FILES = $(KERNEL_ASM_O) $(KERNEL_O) $(IDT_ASM_O) $(IDT_O) $(MEMORY_O) $(IO_ASM_O) $(HEAP_O) $(KHEAP_O) $(PAGE_O) $(PAGE_ASM_O) $(DISK_O) $(STREAMER_O) $(PPARSER_O) $(STRING_O)
 INCLUDES = -I./include
 FLAGS = -g -ffreestanding -falign-jumps -falign-loops -falign-functions -falign-labels -fstrength-reduce -fomit-frame-pointer -finline-functions -Wno-unused-functions -fno-builtin -Werror -Wno-unused-label -Wno-cpp -Wno-unused-parameter -nostdlib -nostartfiles -nodefaultlibs -Wall -O0 -Iinc
 ###
@@ -98,6 +101,9 @@ $(PAGE_ASM_O): $(PAGE_ASM_SRC)
 
 $(DISK_O): $(DISK_SRC)
 	i686-elf-gcc $(INCLUDES) $(FLAGS) -std=gnu99 -c $(DISK_SRC) -o $(DISK_O)
+
+$(STREAMER_O): $(STREAMER_SRC)
+	i686-elf-gcc $(INCLUDES) $(FLAGS) -std=gnu99 -c $(STREAMER_SRC) -o $(STREAMER_O)
 
 $(PPARSER_O): $(PPARSER_SRC)
 	i686-elf-gcc $(INCLUDES) $(FLAGS) -std=gnu99 -c $(PPARSER_SRC) -o $(PPARSER_O)

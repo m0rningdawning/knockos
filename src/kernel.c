@@ -9,6 +9,7 @@
 #include "page.h"
 #include "disk.h"
 #include "pparser.h"
+#include "streamer.h"
 
 static uint16_t cursor_row = 0;
 static uint16_t cursor_col = 0;
@@ -122,7 +123,9 @@ void kernel_main() {
   // enable program interupts
   enable_int();
 
-  struct path_root* root_path = pathparser_parse("0:/bin/shell.bin", NULL);
-
-  if (root_path) {}
+  struct disk_stream* stream = disk_stream_new(0);
+  disk_stream_seek(stream, 0x201);
+  uint8_t c = 0;
+  disk_stream_read(stream, &c, 1);
+  while (1) {}
 }
