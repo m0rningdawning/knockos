@@ -58,7 +58,7 @@ all: $(BOOT_BIN) $(KERNEL_BIN)
 	rm -rf $(OS_BIN)
 	dd if=$(BOOT_BIN) >> $(OS_BIN)
 	dd if=$(KERNEL_BIN) >> $(OS_BIN)
-	dd if=/dev/zero bs=512 count=100 >> $(OS_BIN)
+	dd if=/dev/zero bs=1048576 count=16 >> $(OS_BIN)
 
 $(BOOT_BIN): $(BOOT_SRC)
 	nasm -f bin $(BOOT_SRC) -o $(BOOT_BIN)

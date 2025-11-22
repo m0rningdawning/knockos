@@ -6,11 +6,31 @@ DATA_SEG equ gdt_data - gdt_start
 
 ; start from jmp short to actual start routine to free up
 ; space to fake the bpb for hardware bios differences
-_start:
-    jmp short start
-    nop
+jmp short start
+nop
 
-times 33 db 0 ; fake bios parameter block 33 bits
+; FAT16 HEADER
+OEMIdentifier         db 'KNOCKOS '
+BytesPerSector        dw 0x200
+SectorsPerCluster     db 0x20
+ReservedSectors       dw 200
+FATCopies             db 0x02
+RootDirEntries        dw 0x40
+NumSectors            dw 0x00
+MediaType             db 0xF8
+SectorsPerFat         dw 0x100
+SectorsPerTrack       dw 0x20
+NumberOfHeads         dw 0x40
+HiddenSectors         dd 0x00
+SectorsBig            dd 0x773594
+
+; Extended BPB (DOS 4.0)
+DriveNumber           db 0x80
+WinNTBit              db 0x00
+Signature             db 0x29
+VolumeID              dd 0xD105
+VolumeIDString        db 'KNOCKOS BOO'
+SystemIDString        db 'FAT16   '
 
 start:
     jmp 0: continue_start ; continue the start procedure
